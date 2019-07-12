@@ -17,7 +17,7 @@ bool LunarCardDeck::load(String path) {
   File deck_file = badge.openFile( deck_path, "r");//SPIFFS.open( deck_path, "r");
   if (!deck_file) {
     Serial.println("Could not open file");
-    badge.print_text("Deck File\nMissing", 2, 16);
+    //badge.print_text("Deck File\nMissing", 2, 16);
     return false;
   }
   DeserializationError err =  deserializeJson(deck_json, deck_file);
