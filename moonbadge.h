@@ -6,6 +6,8 @@
 #include <FS.h>
 #define ENABLE_GxEPD2_GFX 0
 #include "SPIFFS.h"
+#include "SD.h"
+#include "SPI.h"
 
 
 

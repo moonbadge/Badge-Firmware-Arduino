@@ -14,7 +14,7 @@ bool LunarCardDeck::load(String path) {
   deck_path = path;
 
   Serial.print("Loading Deck:\t'"); Serial.print(deck_path); Serial.println("'");
-  File deck_file = SPIFFS.open( deck_path, "r");
+  File deck_file = badge.openFile( deck_path, "r");//SPIFFS.open( deck_path, "r");
   if (!deck_file) {
     Serial.println("Could not open file");
     badge.print_text("Deck File\nMissing", 2, 16);

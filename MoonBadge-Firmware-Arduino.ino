@@ -12,13 +12,9 @@ void setup() {
   Serial.println("GxEPD2_Spiffs_Example");
 
   //pathtest();
-  
-  SPIFFS.begin();
 
-  Serial.println("SPIFFS started");
   badge.init();
-  deck.load("/main.json");
-  //deck.showCard("wrong");
+  deck.load("SD:/main.json");
 
   
 
