@@ -14,7 +14,11 @@ void setup() {
   //pathtest();
 
   badge.init();
-  deck.load("SD:/main.json");
+  // Try and load from SD, fallback to flash.
+  if(deck.load("SD:/main.json")==false){
+    Serial.println("Failed to load SDMMC, Falling back to SPIFFS");
+    deck.load("SPI:/main.json");
+  }
 
   
 

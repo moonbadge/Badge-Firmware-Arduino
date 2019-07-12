@@ -112,12 +112,6 @@ File MoonBadge::openFile(String path, String modes) {
   // SPIFFS or SD?
   StringSplitter *splitter = new StringSplitter(path, ':', 5);
   int itemCount = splitter->getItemCount();
-  for (int i = 0; i < itemCount; i++) {
-    Serial.print("\t");
-    Serial.print(i);
-    Serial.print(":");
-    Serial.println(splitter->getItemAtIndex(i));
-  }
   if (itemCount != 1) {
     String drive = splitter->getItemAtIndex(0);
     String drive_path = splitter->getItemAtIndex(1);
