@@ -5,6 +5,7 @@ using namespace std;
 #include "LunarCard.h"
 #include <Adafruit_GFX.h>
 #include <GxEPD2.h>
+#include <ArduinoJson.h>
 
 
 using namespace std;

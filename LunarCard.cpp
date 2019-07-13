@@ -2,10 +2,10 @@
 #include "moonbadge.h"
 #include "Transition.h"
 #include <Arduino.h>
-
+#include <ArduinoJson.h>
 extern MoonBadge badge;
 
-
+/*
 bool LunarCardDeck::load(String path) {
   DynamicJsonDocument deck_json(10000);
   deck_folder = getPath(path);
@@ -140,8 +140,10 @@ void LunarCardDeck::doEvents() {
 void LunarCardDeck::addCard(LunarCard c) {
   cards.push_back(c);
 }
+*/
 
-void LunarCard::addTransition(Transition t) {
+
+void LunarCard::addTransition(Transition * t) {
   transitions.push_back(t);
 }
 
