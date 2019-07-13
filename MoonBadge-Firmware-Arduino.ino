@@ -2,6 +2,9 @@ using namespace std;
 
 #include "moonbadge.h"
 #include "LunarCard.h"
+#include <Adafruit_GFX.h>
+#include <GxEPD2.h>
+
 
 MoonBadge badge;
 LunarCardDeck deck;

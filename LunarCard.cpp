@@ -65,6 +65,7 @@ bool LunarCardDeck::load(String path) {
 
   }
   showCard("entry");
+  return true;
 }
 
 bool LunarCardDeck::showCard(String display_card_name) {
