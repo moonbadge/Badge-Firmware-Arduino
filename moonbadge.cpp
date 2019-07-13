@@ -1,5 +1,14 @@
 #include "moonbadge.h"
 #include "StringSplitter.h"
+
+#include <Arduino.h>
+#include <GxEPD2_BW.h>
+#include <GxEPD2_3C.h>
+#include <Fonts/FreeMonoBold9pt7b.h>
+#define ENABLE_GxEPD2_GFX 0
+#include "SPIFFS.h"
+#include "SPI.h"
+#include "SD.h"
 GxEPD2_BW<GxEPD2_213, GxEPD2_213::HEIGHT> display(GxEPD2_213(/*CS=*/ 5, /*DC=*/ 25, /*RST=*/ 16, /*BUSY=*/ 4)); // GDE0213B1, phased out
 
 #define FileClass fs::File

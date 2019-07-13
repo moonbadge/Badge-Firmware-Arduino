@@ -1,8 +1,11 @@
 using namespace std;
 
 #include "moonbadge.h"
+#include "LunarCardDeck.h"
 #include "LunarCard.h"
+#include "Transition.h"
 
+using namespace std;
 MoonBadge badge;
 LunarCardDeck deck;
 void setup() {

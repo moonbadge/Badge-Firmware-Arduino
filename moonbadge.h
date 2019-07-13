@@ -1,16 +1,9 @@
 #ifndef epd-funcs-h
 #define epd-funcs-h
-#include <GxEPD2_BW.h>
-#include <GxEPD2_3C.h>
-#include <Fonts/FreeMonoBold9pt7b.h>
+#include <String.h>
 #include <FS.h>
-#define ENABLE_GxEPD2_GFX 0
-#include "SPIFFS.h"
-#include "SD.h"
-#include "SPI.h"
 
-
-
+using namespace std;
 class MoonBadge {
 
     static const uint16_t input_buffer_pixels = 640; // may affect performance
