@@ -1,7 +1,10 @@
+
+#include "LunarCardDeck.h"
 #include "LunarCard.h"
-#include "moonbadge.h"
 #include "Transition.h"
-#include <Arduino.h>
+#include "moonbadge.h"
+#include <ArduinoJson.h>
+
 
 extern MoonBadge badge;
 
@@ -13,10 +16,10 @@ bool LunarCardDeck::load(String path) {
   deck_path = path;
 
   Serial.print("Loading Deck:\t'"); Serial.print(deck_path); Serial.println("'");
-  File deck_file = SPIFFS.open( deck_path, "r");
+  File deck_file = badge.openFile( deck_path, "r");//SPIFFS.open( deck_path, "r");
   if (!deck_file) {
     Serial.println("Could not open file");
-    badge.print_text("Deck File\nMissing", 2, 16);
+    //badge.print_text("Deck File\nMissing", 2, 16);
     return false;
   }
   DeserializationError err =  deserializeJson(deck_json, deck_file);
@@ -43,35 +46,48 @@ bool LunarCardDeck::load(String path) {
   //badge.drawBitmapFromSpiffs("test.bmp", 0, 0, true);
   for (int i = 0; i < deck_json.size(); i++) {
 
-    LunarCard c;
+    String cardtype = deck_json[i]["type"];
+    LunarCard *c = NULL;
+    if (cardtype=="image"){
+      ImageCard *im = new ImageCard();
+      String path = deck_json[i]["image"];
+      if(isAbsolute(path)==false){
+        path = deck_folder+path;
+      }
+    im->image_path=path;
+    c = (LunarCard *) im;
+    }
+    if (cardtype=="menu"){
+      
+    }
+    if (cardtype=="animation"){
+      
+    }
     String cardname = deck_json[i]["name"];
-    String image = deck_json[i]["image"];
-    c.cardname = cardname;
-    c.image = image;
+    c->cardname = cardname;
     for (int j = 0; j < deck_json[i]["jump"].size(); j++) {
-      Transition t;
+      Transition *t = new Transition();
       String type = deck_json[i]["jump"][j]["type"];
       String key = deck_json[i]["jump"][j]["key"];
       String target_page = deck_json[i]["jump"][j]["destination"]["page"];
-      t.type = type;
-      t.key = key;
-      t.target = target_page;
-      c.addTransition(t);
+      t->type = type;
+      t->key = key;
+      t->target = target_page;
+      c->addTransition(t);
     }
     Serial.println("Adding Card");
-    Serial.println(c.toString());
+    Serial.println(c->toString());
     addCard(c);
 
   }
   showCard("entry");
-  return true;
 }
 
 bool LunarCardDeck::showCard(String display_card_name) {
   Serial.print("Showing Card '"); Serial.print(display_card_name); Serial.println("'");
   int card_index = -1;
   for (int i = 0; i < cards.size(); i++) {
-    if (display_card_name == cards[i].cardname) {
+    if (display_card_name == cards[i]->cardname) {
       Serial.print("\tIndex is: "); Serial.print(i); Serial.println("");
       card_index = i;
     }
@@ -81,10 +97,12 @@ bool LunarCardDeck::showCard(String display_card_name) {
     badge.print_text(err, 2, 16);
     return false;
   }
+  current_card_index = card_index;
   return showCard(card_index);
 }
 
 bool LunarCardDeck::showCard(int card_index) {
+  /*
   Serial.print("\tLoading Card #"); Serial.print(card_index); Serial.println("");
   Serial.print("\tImg Path: '"); Serial.print(cards[card_index].image); Serial.println("'");
   String path = cards[card_index].image;
@@ -93,12 +111,13 @@ bool LunarCardDeck::showCard(int card_index) {
   }
   badge.drawBitmapFromSpiffs(path, 0, 0, true);
   current_card_index = card_index;
-
+*/
+  cards[card_index]->show();
   return true;
 }
 
 void LunarCardDeck::doEvents() {
-  LunarCard c = cards[current_card_index];
+  LunarCard * c = cards[current_card_index];
   int touch_num = badge.getTouch();
   String touch_key;
   if (touch_num != 0) {
@@ -113,12 +132,12 @@ void LunarCardDeck::doEvents() {
 
   String target = "";
   bool haveTarget = false;
-  if (c.transitions.size() == 0) return;
-  for (int i = 0; i < c.transitions.size(); i++) {
-    Transition t = c.transitions[i];
-    if (t.type == "keypress" && touch_num != 0) {
-      if (touch_key == t.key) {
-        target = t.target;
+  if (c->transitions.size() == 0) return;
+  for (int i = 0; i < c->transitions.size(); i++) {
+    Transition *t = c->transitions[i];
+    if (t->type == "keypress" && touch_num != 0) {
+      if (touch_key == t->key) {
+        target = t->target;
         Serial.println("Handling Touch Transition!");
         Serial.print("Waiting for release...");
         if (badge.waitForTouchRelease()) Serial.println("Done!");
@@ -137,29 +156,6 @@ void LunarCardDeck::doEvents() {
   resetTouch();
 }
 
-void LunarCardDeck::addCard(LunarCard c) {
+void LunarCardDeck::addCard(LunarCard * c) {
   cards.push_back(c);
-}
-
-void LunarCard::addTransition(Transition t) {
-  transitions.push_back(t);
-}
-
-String LunarCard::toString() {
-  String response = "\tName:\t'" + cardname + "'\n";
-  for (int i = 0; i < transitions.size(); i++) {
-    Transition *t = transitions[i];
-    response = response + "\t\tTransition\n\t\t\t" + "Type: " + t->type + "\n\t\t\tTarget: '" + t->target + "'" + "\n\t\t\tKey: '" + t->key + "'\n";
-  }
-  return response;
-}
-
-bool ImageCard::show(){
-  Serial.print("\tImg Path: '"); Serial.print(image_path); Serial.println("'");
-  //String path = image;
-  //if(isAbsolute(path)==false){
-  //  path = path;//deck.deck_folder+path;
-  //}
-  badge.drawBitmapFromSpiffs(image_path, 0, 0, true);
-  
 }

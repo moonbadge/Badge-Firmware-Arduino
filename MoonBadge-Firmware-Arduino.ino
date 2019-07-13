@@ -1,11 +1,13 @@
 using namespace std;
 
 #include "moonbadge.h"
+#include "LunarCardDeck.h"
 #include "LunarCard.h"
 #include <Adafruit_GFX.h>
 #include <GxEPD2.h>
 
 
+using namespace std;
 MoonBadge badge;
 LunarCardDeck deck;
 void setup() {
@@ -15,13 +17,13 @@ void setup() {
   Serial.println("GxEPD2_Spiffs_Example");
 
   //pathtest();
-  
-  SPIFFS.begin();
 
-  Serial.println("SPIFFS started");
   badge.init();
-  deck.load("/main.json");
-  //deck.showCard("wrong");
+  // Try and load from SD, fallback to flash.
+  if(deck.load("SD:/main.json")==false){
+    Serial.println("Failed to load SDMMC, Falling back to SPIFFS");
+    deck.load("SPI:/main.json");
+  }
 
   
 

@@ -1,5 +1,14 @@
 #include "moonbadge.h"
 #include "StringSplitter.h"
+
+#include <Arduino.h>
+#include <GxEPD2_BW.h>
+#include <GxEPD2_3C.h>
+#include <Fonts/FreeMonoBold9pt7b.h>
+#define ENABLE_GxEPD2_GFX 0
+#include "SPIFFS.h"
+#include "SPI.h"
+#include "SD.h"
 GxEPD2_BW<GxEPD2_213, GxEPD2_213::HEIGHT> display(GxEPD2_213(/*CS=*/ 5, /*DC=*/ 25, /*RST=*/ 16, /*BUSY=*/ 4)); // GDE0213B1, phased out
 
 #define FileClass fs::File
@@ -36,6 +45,13 @@ int threshold = 30;
 void MoonBadge::init() {
   display.init();
 
+  SPIFFS.begin();
+  Serial.println("SPIFFS started");
+  if (!SD.begin(15)) {
+    Serial.println("Card Mount Failed");
+  } else {
+    Serial.println("SDMMC started");
+  }
   touchAttachInterrupt(T5, gotTouchUp, threshold);
   touchAttachInterrupt(T6, gotTouchDown, threshold);
   touchAttachInterrupt(T7, gotTouchLeft, threshold);
@@ -102,9 +118,25 @@ bool MoonBadge::waitForTouchRelease() {
 
 File MoonBadge::openFile(String path, String modes) {
   fs::File file;
-  
-  String fpath= path;
-  file = SPIFFS.open(fpath, "r");
+  // SPIFFS or SD?
+  StringSplitter *splitter = new StringSplitter(path, ':', 5);
+  int itemCount = splitter->getItemCount();
+  if (itemCount != 1) {
+    String drive = splitter->getItemAtIndex(0);
+    String drive_path = splitter->getItemAtIndex(1);
+    Serial.print("Drive: \t'");Serial.print(drive);Serial.println("'");
+    Serial.print("Path: \t'");Serial.print(drive_path);Serial.println("'");
+    if (drive == "SD") {
+      file = SD.open(drive_path, "r");
+    } else if (drive == "SPI") {
+      file = SPIFFS.open(drive_path, "r");
+    }
+  } else {
+    file = SPIFFS.open(path, "r");
+  }
+
+  String fpath = path;
+
   return file;
 }
 
@@ -352,7 +384,7 @@ String getPath(String absolute) {
   return resp;
 }
 
-bool isAbsolute(String path){
+bool isAbsolute(String path) {
   if (path.substring(0, 1) == "/") return true;
   return false;
 }
