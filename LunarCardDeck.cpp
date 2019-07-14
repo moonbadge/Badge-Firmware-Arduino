@@ -58,7 +58,22 @@ bool LunarCardDeck::load(String path) {
     c = (LunarCard *) im;
     }
     if (cardtype=="menu"){
+    	MenuCard *m = new MenuCard();
+    	String menu_default_position = deck_json[i]["menu-default-position"];
+    	String jump_back = deck_json[i]["jump-back"]["page"];
+    	int menucount=deck_json[i]["options"].size();
+    	for (int j=0; j<menucount; j++){
+    		MenuEntry *me = new MenuEntry();
+    		String path = deck_json[i]["options"][j]["image"];
+    	      if(isAbsolute(path)==false){
+    	        path = deck_folder+path;
+    	      }
+    		String target = deck_json[i]["options"][j]["destination"]["page"];
+    		me->target=target;
+    	}
       
+
+    	c = (LunarCard *) m;
     }
     if (cardtype=="animation"){
       
@@ -113,45 +128,17 @@ bool LunarCardDeck::showCard(int card_index) {
 
 void LunarCardDeck::doEvents() {
   LunarCard * c = cards[current_card_index];
-  int touch_num = badge.getTouch();
-  String touch_key;
-  if (touch_num != 0) {
-    switch (touch_num) {
-      case 0: break; // no touch
-      case 1: touch_key = "button-up"; break;
-      case 2: touch_key = "button-down"; break;
-      case 3: touch_key = "button-left"; break;
-      case 4: touch_key = "button-right"; break;
-    }
-  }
-
-  String target = "";
-  bool haveTarget = false;
-  if (c->transitions.size() == 0) return;
-  for (int i = 0; i < c->transitions.size(); i++) {
-    Transition *t = c->transitions[i];
-    badge.refresh = t->refresh;
-    if (t->type == "keypress" && touch_num != 0) {
-      if (touch_key == t->key) {
-        target = t->target;
-        Serial.println("Handling Touch Transition!");
-        Serial.print("Waiting for release...");
-        if (badge.waitForTouchRelease()) Serial.println("Done!");
-        else Serial.println("Timeout!");
-        delay(500);
-        Serial.print("\tKey: '");    Serial.print(touch_key); Serial.println("'");
-        haveTarget = true;
-        break;
-      }
-    }
-  }
-  if (haveTarget) {
-    Serial.print("\tTarget: '"); Serial.print(target); Serial.println("'");
-    showCard(target);
-  }
-  resetTouch();
+  c->doEvents();
 }
 
 void LunarCardDeck::addCard(LunarCard * c) {
   cards.push_back(c);
+}
+
+bool AnimationCard::show(){
+
+}
+
+void AnimationCard::doEvents(){
+
 }

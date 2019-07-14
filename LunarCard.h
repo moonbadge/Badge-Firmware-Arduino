@@ -15,6 +15,7 @@ class LunarCard {
     String toString();
     void addTransition(Transition *t);
     virtual bool show()=0;
+    virtual void doEvents()=0;
     
 
 };
@@ -23,17 +24,24 @@ class ImageCard : public LunarCard {
   public:
     String image_path;
     bool show();
+    void doEvents();
 };
 
 
-class MenuCardEntry {
+class MenuEntry {
 public:
 	String image_path;
 	String target;
-	bool show();
 };
-class MenuCard : public LunarCard{
 
+class MenuCard : public LunarCard{
+public:
+	int selected_item;
+	Transition * back;
+	vector<MenuEntry *> items;
+	bool show();
+	void addItem(MenuEntry *me);
+	void doEvents();
 };
 
 
@@ -50,6 +58,7 @@ class AnimationCard : public LunarCard {
     vector<AnimationSlide *> slides;
     bool show();
     void animate();
+    void doEvents();
 };
 
 
