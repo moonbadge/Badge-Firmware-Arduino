@@ -2,14 +2,16 @@
 #define TRANSITION_H
 #include <String.h>
 #include <WString.h>
+#include "RefreshType.h"
+#include "TouchKey.h"
 
 using namespace std;
 
-enum RefreshType { None = 0, Short, Full };
+
 class Transition {
   public:
     String type;
-    String key;
+    TouchKey key;
     String target;
     RefreshType refresh;
 };

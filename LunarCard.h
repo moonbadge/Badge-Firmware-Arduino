@@ -6,8 +6,6 @@
 #include <vector>
 #include <String.h>
 
-
-using namespace std;
 class LunarCard {
   public:
     String cardname;

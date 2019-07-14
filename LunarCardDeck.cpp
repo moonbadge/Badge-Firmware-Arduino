@@ -87,7 +87,7 @@ bool LunarCardDeck::load(String path) {
       String target_page = deck_json[i]["event"][j]["destination"]["page"];
       String refresh = deck_json[i]["event"][j]["refresh"];
       t->type = type;
-      t->key = key;
+      t->key = str2key(key);
       t->target = target_page;
       if (refresh=="none") t->refresh = None;
       else if (refresh=="short") t->refresh = Short;
@@ -129,6 +129,26 @@ bool LunarCardDeck::showCard(int card_index) {
 void LunarCardDeck::doEvents() {
   LunarCard * c = cards[current_card_index];
   c->doEvents();
+  TouchKey key = badge.getTouch();
+  String target="";
+  if (c->transitions.size() == 0) return;
+  for (int i = 0; i < c->transitions.size(); i++) {
+  	    Transition *t = c->transitions[i];
+  	    badge.refresh = t->refresh;
+  	  // Key Events?
+  	  if (key!=NoKey && t->type == "keypress" && key == t->key){
+  		Serial.print("\tKey: '");    Serial.print(key2str(key)); Serial.println("'");
+  		target = t->target;
+  	  }
+  }
+  if (target!=""){
+	    Serial.print("\tTarget: '"); Serial.print(target); Serial.println("'");
+	    showCard(target);
+        Serial.print("Waiting for release...");
+        if (badge.waitForTouchRelease()) Serial.println("Done!");
+        else Serial.println("Timeout!");
+        delay(800);
+  }
 }
 
 void LunarCardDeck::addCard(LunarCard * c) {

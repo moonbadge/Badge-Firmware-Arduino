@@ -64,25 +64,25 @@ void MoonBadge::init() {
   display.setTextColor(GxEPD_BLACK);
 
 }
-int pad_num_touched;
+TouchKey pad_key_touched;
 void gotTouchUp() {
   //Serial.println("Touch Up");
-  pad_num_touched = 1;
+  pad_key_touched = Up;
 }
 void gotTouchDown() {
   //Serial.println("Touch Down");
-  pad_num_touched = 2;
+  pad_key_touched = Down;
 }
 void gotTouchLeft() {
   //Serial.println("Touch Left");
-  pad_num_touched = 3;
+  pad_key_touched = Left;
 }
 void gotTouchRight() {
   //Serial.println("Touch Right");
-  pad_num_touched = 4;
+  pad_key_touched = Right;
 }
 void resetTouch() {
-  pad_num_touched = 0;
+  pad_key_touched = NoKey;
 }
 
 void MoonBadge::print_text(String error, int x, int y) {
@@ -102,8 +102,34 @@ void MoonBadge::print_text(String error, int x, int y) {
   delay(5000);
 }
 
-int MoonBadge::getTouch() {
-  int n =  pad_num_touched;
+
+String key2str(TouchKey k){
+	String keyname;
+	switch(k){
+	case Up:
+		keyname="button-up"; break;
+	case Down:
+		keyname="button-down"; break;
+	case Left:
+		keyname="button-left"; break;
+	case Right:
+		keyname="button-right"; break;
+	case NoKey:
+		keyname="no-key"; break;
+	}
+	return keyname;
+}
+
+TouchKey str2key(String s){
+	if (s=="button-up") return Up;
+	if (s=="button-down") return Down;
+	if (s=="button-left") return Left;
+	if (s=="button-right") return Right;
+	return NoKey;
+
+}
+TouchKey MoonBadge::getTouch() {
+  TouchKey n = pad_key_touched;
   resetTouch();
   return n;
 }

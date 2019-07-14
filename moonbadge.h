@@ -3,8 +3,11 @@
 #include <String.h>
 #include <FS.h>
 #include "Transition.h"
+#include "TouchKey.h"
+#include "RefreshType.h"
 
-using namespace std;
+
+
 class MoonBadge {
 
     static const uint16_t input_buffer_pixels = 640; // may affect performance
@@ -19,22 +22,28 @@ class MoonBadge {
     uint8_t color_palette_buffer[max_palette_pixels / 8]; // palette buffer for depth <= 8 c/w
 
 
-  
+
   public:
     RefreshType refresh;
     void init(void);
     void drawBitmapFromSpiffs(String filename, int16_t x, int16_t y, bool with_color);
     void print_text(String error,int x,int y);
-    int getTouch();
+    TouchKey getTouch();
     File openFile(String path,String modes);
     bool waitForTouchRelease(void);
 };
+
+
 void pathtest();
+
+// Interrupt handlers for touch events.
 void gotTouchUp();
 void gotTouchDown();
 void gotTouchLeft();
 void gotTouchRight();
 void resetTouch();
+String key2str(TouchKey k);
+TouchKey str2key(String s);
 
 String getFilename(String absolute);
 
