@@ -65,14 +65,19 @@ bool LunarCardDeck::load(String path) {
     }
     String cardname = deck_json[i]["name"];
     c->cardname = cardname;
-    for (int j = 0; j < deck_json[i]["jump"].size(); j++) {
+    for (int j = 0; j < deck_json[i]["event"].size(); j++) {
       Transition *t = new Transition();
-      String type = deck_json[i]["jump"][j]["type"];
-      String key = deck_json[i]["jump"][j]["key"];
-      String target_page = deck_json[i]["jump"][j]["destination"]["page"];
+      String type = deck_json[i]["event"][j]["type"];
+      String key = deck_json[i]["event"][j]["key"];
+      String target_page = deck_json[i]["event"][j]["destination"]["page"];
+      String refresh = deck_json[i]["event"][j]["refresh"];
       t->type = type;
       t->key = key;
       t->target = target_page;
+      if (refresh=="none") t->refresh = None;
+      else if (refresh=="short") t->refresh = Short;
+      else if (refresh=="full") t->refresh = Full;
+      else t->refresh = Full;
       c->addTransition(t);
     }
     Serial.println("Adding Card");
@@ -102,16 +107,6 @@ bool LunarCardDeck::showCard(String display_card_name) {
 }
 
 bool LunarCardDeck::showCard(int card_index) {
-  /*
-  Serial.print("\tLoading Card #"); Serial.print(card_index); Serial.println("");
-  Serial.print("\tImg Path: '"); Serial.print(cards[card_index].image); Serial.println("'");
-  String path = cards[card_index].image;
-  if(isAbsolute(path)==false){
-    path = deck_folder+path;
-  }
-  badge.drawBitmapFromSpiffs(path, 0, 0, true);
-  current_card_index = card_index;
-*/
   cards[card_index]->show();
   return true;
 }
@@ -135,6 +130,7 @@ void LunarCardDeck::doEvents() {
   if (c->transitions.size() == 0) return;
   for (int i = 0; i < c->transitions.size(); i++) {
     Transition *t = c->transitions[i];
+    badge.refresh = t->refresh;
     if (t->type == "keypress" && touch_num != 0) {
       if (touch_key == t->key) {
         target = t->target;

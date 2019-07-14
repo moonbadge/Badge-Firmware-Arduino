@@ -24,4 +24,33 @@ class ImageCard : public LunarCard {
     String image_path;
     bool show();
 };
+
+
+class MenuCardEntry {
+public:
+	String image_path;
+	String target;
+	bool show();
+};
+class MenuCard : public LunarCard{
+
+};
+
+
+
+class AnimationSlide{
+public:
+	int duration;
+	RefreshType refresh;
+	String image_path;
+};
+
+class AnimationCard : public LunarCard {
+  public:
+    vector<AnimationSlide *> slides;
+    bool show();
+    void animate();
+};
+
+
 #endif

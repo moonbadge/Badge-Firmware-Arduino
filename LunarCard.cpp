@@ -5,6 +5,7 @@
 #include <ArduinoJson.h>
 extern MoonBadge badge;
 
+using namespace std;
 void LunarCard::addTransition(Transition * t) {
   transitions.push_back(t);
 }

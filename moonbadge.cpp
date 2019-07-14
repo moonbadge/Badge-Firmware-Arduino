@@ -1,6 +1,6 @@
 #include "moonbadge.h"
 #include "StringSplitter.h"
-
+#include "Transition.h"
 #include <Arduino.h>
 #include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
@@ -43,6 +43,7 @@ uint32_t read32(fs::File& f)
 */
 int threshold = 30;
 void MoonBadge::init() {
+  refresh=Full;
   display.init();
 
   SPIFFS.begin();
@@ -56,6 +57,11 @@ void MoonBadge::init() {
   touchAttachInterrupt(T6, gotTouchDown, threshold);
   touchAttachInterrupt(T7, gotTouchLeft, threshold);
   touchAttachInterrupt(T4, gotTouchRight, threshold);
+
+  display.setPartialWindow(0, 0, display.width(), display.height());
+  display.setRotation(0);
+  display.setFont(&FreeMonoBold9pt7b);
+  display.setTextColor(GxEPD_BLACK);
 
 }
 int pad_num_touched;
@@ -140,8 +146,9 @@ File MoonBadge::openFile(String path, String modes) {
   return file;
 }
 
-void MoonBadge::drawBitmapFromSpiffs(String filename, int16_t x, int16_t y, bool with_color)
-{
+void MoonBadge::drawBitmapFromSpiffs(String filename, int16_t x, int16_t y, bool with_color){
+  bool partial=false;
+  if (refresh != Full) partial=true;
   fs::File file;
   bool valid = false; // valid format to be handled
   bool flip = true; // bitmap is stored bottom-to-top
@@ -219,7 +226,7 @@ void MoonBadge::drawBitmapFromSpiffs(String filename, int16_t x, int16_t y, bool
             color_palette_buffer[pn / 8] |= colored << pn % 8;
           }
         }
-        display.clearScreen();
+        //display.clearScreen();
         uint32_t rowPosition = flip ? imageOffset + (height - h) * rowSize : imageOffset;
         for (uint16_t row = 0; row < h; row++, rowPosition += rowSize) // for each line
         {
@@ -311,7 +318,7 @@ void MoonBadge::drawBitmapFromSpiffs(String filename, int16_t x, int16_t y, bool
           display.writeImage(output_row_mono_buffer, output_row_color_buffer, x, yrow, w, 1);
         } // end line
         Serial.print("loaded in "); Serial.print(millis() - startTime); Serial.println(" ms");
-        display.refresh();
+        display.refresh(partial);
       }
     }
   }

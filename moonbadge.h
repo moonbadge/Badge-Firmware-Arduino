@@ -2,6 +2,7 @@
 #define epd-funcs-h
 #include <String.h>
 #include <FS.h>
+#include "Transition.h"
 
 using namespace std;
 class MoonBadge {
@@ -20,6 +21,7 @@ class MoonBadge {
 
   
   public:
+    RefreshType refresh;
     void init(void);
     void drawBitmapFromSpiffs(String filename, int16_t x, int16_t y, bool with_color);
     void print_text(String error,int x,int y);
