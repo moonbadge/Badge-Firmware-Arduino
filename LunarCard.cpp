@@ -22,6 +22,7 @@ String LunarCard::toString() {
 bool LunarCard::show(){
   Serial.print("\tImg Path: '"); Serial.print(image_path); Serial.println("'");
   badge.drawBitmapFromSpiffs(image_path, 0, 0, true);
+  msLoaded=millis();
   
 }
 

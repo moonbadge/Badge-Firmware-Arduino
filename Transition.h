@@ -9,6 +9,8 @@ using namespace std;
 enum TransitionType {Invalid=0,Key,Delay};
 class Transition {
   public:
+    unsigned int msDelay=0;
+    bool timer=false;
      TouchKey key;
      TransitionType type;
     LunarCard *target;

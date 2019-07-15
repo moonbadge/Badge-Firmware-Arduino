@@ -10,6 +10,7 @@ class LunarCard {
   public:
     String cardname;
     int index;
+    unsigned int msLoaded=0;
     vector<Transition *> transitions;
     CardType type;
     String toString();

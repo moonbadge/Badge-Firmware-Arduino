@@ -10,7 +10,7 @@ extern MoonBadge badge;
 
 bool LunarCardDeck::load(String path) {
 	currentCard==NULL;
-	DynamicJsonDocument deck_json(5000);
+	DynamicJsonDocument deck_json(10000);
 	deck_folder = getPath(path);
 	deck_filename = getFilename(path);
 	deck_path = path;
@@ -98,6 +98,10 @@ bool LunarCardDeck::load(String path) {
 					t->key = str2key(key);
 				}
 				if (t->type == Delay){
+					unsigned int delay = deck_json[i]["event"][j]["delay"];
+					Serial.print(" delay: '");Serial.print(delay);Serial.print("' ");
+					t->msDelay = delay;
+					t->timer = true;
 					// todo
 				}
 				Serial.print("' transition from '");Serial.print(c->cardname);Serial.print("' to '");Serial.print(target);Serial.print("' ");
@@ -175,6 +179,17 @@ void LunarCardDeck::doEvents() {
 			Serial.print("' ");
 			target = t->target;
 			validEvent=true;
+		}
+		if (t->timer && t->type == Delay){
+//			//Serial.print(t->msDelay+currentCard->msLoaded); Serial.print(":");Serial.print(millis()); Serial.print(":");Serial.println(t->msDelay+currentCard->msLoaded > millis());
+			if (t->msDelay+currentCard->msLoaded > millis()){
+				Serial.print("Handling Delay Event '");
+				Serial.print("\tms: '");
+				Serial.print(t->msDelay);
+				Serial.print("' ");
+				target = t->target;
+				validEvent=true;
+			}
 		}
 	}
 	if (validEvent) {
