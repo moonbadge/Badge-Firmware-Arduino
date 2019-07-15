@@ -1,9 +1,5 @@
-#ifndef lunarcard-h
-#define lunarcard-h
+#pragma once
 
-
-
-class LunarCard;
 #include <String.h>
 #include <vector>
 #include "LunarCard.h"
@@ -13,7 +9,7 @@ class LunarCard;
 
 using namespace std;
 class LunarCardDeck {
-    int current_card_index = 0;
+    LunarCard *currentCard;
 
     vector<LunarCard *> cards;
   public:
@@ -23,14 +19,13 @@ class LunarCardDeck {
     bool load(String deck_path);
     void addCard(LunarCard * c);
     bool showCard(String display_card_name);
+    bool showCard(LunarCard *c);
     bool showCard(int index);
 
+    LunarCard *findCardByName(String n);
     void doEvents(void);
 
 
 
 };
 
-
-
-#endif

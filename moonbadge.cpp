@@ -41,7 +41,7 @@ uint32_t read32(fs::File& f)
    t4 r
    t7 l
 */
-int threshold = 30;
+int threshold = 40;
 void MoonBadge::init() {
   refresh=Full;
   display.init();

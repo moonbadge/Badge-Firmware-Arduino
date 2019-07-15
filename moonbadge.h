@@ -1,5 +1,5 @@
-#ifndef epd-funcs-h
-#define epd-funcs-h
+#pragma once
+
 #include <String.h>
 #include <FS.h>
 #include "Transition.h"
@@ -49,4 +49,4 @@ String getFilename(String absolute);
 
 String getPath(String absolute);
 bool isAbsolute(String path);
-#endif
+

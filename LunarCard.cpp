@@ -14,33 +14,17 @@ String LunarCard::toString() {
   String response = "\tName:\t'" + cardname + "'\n";
   for (int i = 0; i < transitions.size(); i++) {
     Transition *t = transitions[i];
-    response = response + "\t\tTransition\n\t\t\t" + "Type: " + t->type + "\n\t\t\tTarget: '" + t->target + "'" + "\n\t\t\tKey: '" + t->key + "'\n";
+    response = response + "\t\tTransition\n\t\t\t" + "Type: " + t->type + "\n\t\t\tTarget: '" + t->target->cardname + "'" + "\n\t\t\tKey: '" + t->key + "'\n";
   }
   return response;
 }
 
-bool ImageCard::show(){
+bool LunarCard::show(){
   Serial.print("\tImg Path: '"); Serial.print(image_path); Serial.println("'");
   badge.drawBitmapFromSpiffs(image_path, 0, 0, true);
   
 }
 
-void ImageCard::doEvents(){
+void LunarCard::doEvents(){
 
-}
-
-void MenuCard::doEvents(){
-	TouchKey key = badge.getTouch();
-	if (key==NoKey) return;
-	if (key==Left)
-
-}
-
-bool MenuCard::show(){
-	MenuEntry *me = items[selected_item];
-	badge.drawBitmapFromSpiffs(me->image_path, 0, 0, true);
-}
-
-void MenuCard::addItem(MenuEntry *me){
-	items.push_back(me);
 }

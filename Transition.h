@@ -1,18 +1,19 @@
-#ifndef TRANSITION_H
-#define TRANSITION_H
-#include <String.h>
-#include <WString.h>
+#pragma once
 #include "RefreshType.h"
+//#include "LunarCard.h"
+class LunarCard;
 #include "TouchKey.h"
 
 using namespace std;
 
-
+enum TransitionType {Invalid=0,Key,Delay};
 class Transition {
   public:
-    String type;
-    TouchKey key;
-    String target;
+     TouchKey key;
+     TransitionType type;
+    LunarCard *target;
     RefreshType refresh;
 };
-#endif
+
+String TransitionType2Str(TransitionType t);
+
