@@ -91,6 +91,7 @@ bool LunarCardDeck::load(String path) {
 
 				String refresh = deck_json[i]["event"][j]["refresh"];
 				t->refresh = Str2RefreshType(refresh);
+				//Serial.println(refresh);
 
 				if (t->type == Key){
 					String key = deck_json[i]["event"][j]["key"];
@@ -244,7 +245,7 @@ void LunarCardDeck::doEvents() {
 	LunarCard *target;
 	bool validEvent=false;
 	if (currentCard->transitions.size() == 0){
-		Serial.println("No Transitions");
+		//Serial.println("No Transitions");
 		return;
 	}
 	Transition *t;
@@ -262,6 +263,8 @@ void LunarCardDeck::doEvents() {
 			Serial.print(key2str(key));
 			Serial.println("' ");
 			target = t->target;
+
+			badge.refresh = t->refresh;
 			validEvent=true;
 		}
 		if (t->timer && t->type == Delay){
