@@ -16,6 +16,7 @@ GxEPD2_BW<GxEPD2_213, GxEPD2_213::HEIGHT> display(GxEPD2_213(/*CS=*/ 5, /*DC=*/ 
 // function declaration with default parameter
 void drawBitmapFromSpiffs(const char *filename, int16_t x, int16_t y, bool with_color = true);
 
+
 uint16_t read16(fs::File& f)
 {
   // BMP data is stored little-endian, same as Arduino.
@@ -35,6 +36,10 @@ uint32_t read32(fs::File& f)
   ((uint8_t *)&result)[3] = f.read(); // MSB
   return result;
 }
+
+
+
+
 /*
    t5 up
    t6 down
@@ -174,7 +179,12 @@ File MoonBadge::openFile(String path, String modes) {
 
 void MoonBadge::drawBitmapFromSpiffs(String filename, int16_t x, int16_t y, bool with_color){
   bool partial=false;
-  if (refresh != Full) partial=true;
+  if (refresh != Full){
+	  Serial.println("Doing a partial refresh.");
+	  partial=true;}
+  else {
+	  Serial.println("Doing a full refresh.");
+  }
   fs::File file;
   bool valid = false; // valid format to be handled
   bool flip = true; // bitmap is stored bottom-to-top
@@ -186,6 +196,7 @@ void MoonBadge::drawBitmapFromSpiffs(String filename, int16_t x, int16_t y, bool
   Serial.println('\'');
 
   file = openFile(filename, "r");
+
 
   if (!file)
   {
@@ -354,6 +365,7 @@ void MoonBadge::drawBitmapFromSpiffs(String filename, int16_t x, int16_t y, bool
     Serial.println("bitmap format not handled.");
   }
 }
+
 
 void pathtest() {
 

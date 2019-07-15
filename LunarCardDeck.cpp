@@ -69,7 +69,7 @@ bool LunarCardDeck::load(String path) {
 	for (int i = 0; i < cards.size(); i++) {
 		LunarCard *c = cards[i];
 		// Do images for now
-		if (c->type == Image) {
+		if (c->type == Image || c->type == Animation) {
 			String path = deck_json[i]["image"];
 			if (isAbsolute(path) == false) {
 				path = deck_folder + path;
@@ -94,7 +94,7 @@ bool LunarCardDeck::load(String path) {
 
 				if (t->type == Key){
 					String key = deck_json[i]["event"][j]["key"];
-					Serial.print(" key: '");Serial.print(key);Serial.print("' ");
+					Serial.print("' key: '");Serial.print(key);Serial.print("' ");
 					t->key = str2key(key);
 				}
 				if (t->type == Delay){
@@ -118,7 +118,82 @@ bool LunarCardDeck::load(String path) {
 	}
 
 	// Pass three, expand menus and animations
+	for (int i = 0; i < cards.size(); i++) {
+		LunarCard *c = cards[i];
 
+		if (c->type==Animation){
+			Serial.print("Found Animation '");Serial.print(c->cardname);Serial.println("'");
+			// Lookup card in JSON and iterate over animation steps
+			int image_count = deck_json[c->index]["images"].size();
+			Transition *en = new Transition();
+			en->msDelay=1;
+			en->type=Delay;
+			en->refresh=None;
+			en->timer=true;
+			c->transitions.push_back(en);
+
+
+			Transition *prev_t=NULL;
+			LunarCard *firstSlide=NULL;
+			for (int j = 0; j < image_count; j++) {
+				String path = deck_json[c->index]["images"][j]["image"];
+				unsigned int step_delay = deck_json[c->index]["images"][j]["delay"];
+				// Create a slide.
+				LunarCard *slide = new LunarCard();
+				slide->type=AnimationStep;
+				String animCardName = c->cardname+"@"+String(j);
+				Serial.print("     Adding step '");Serial.print(animCardName);Serial.println("'");
+				slide->cardname = animCardName;
+				if (isAbsolute(path) == false) {
+					path = deck_folder + path;
+				}
+				Serial.print("          Path: '");Serial.print(path);Serial.println("'");
+				slide->image_path=path;
+				// Add a transition to the next slide
+				Transition *t = new Transition();
+				slide->transitions.push_back(t);
+
+				t->type = Delay;
+				t->refresh=None;
+				t->timer = true;
+				t->msDelay = step_delay;
+				Serial.print("          Delay ");Serial.print(step_delay);Serial.println("ms");
+				// Copy parent's transitions into animation slides.
+
+				for(int k=0; k<c->transitions.size(); k++){
+					//Serial.print(k);Serial.print(":"); Serial.println(TransitionType2Str(c->transitions[k]->type));
+					if (c->transitions[k]->type==Key){
+						slide->transitions.push_back(c->transitions[k]);
+						Serial.print("               Adding transition '");Serial.print(TransitionType2Str(c->transitions[k]->type));Serial.println("'");
+					}
+				}
+
+				if(j==0){ //first
+					Serial.println("          This is the first slide");
+					// there isn't a previous slide. just save the transition
+					prev_t = t;
+					firstSlide = slide;
+					en->target = firstSlide;
+					c->image_path = firstSlide->image_path;
+				} else if(j==image_count-1){ // last
+					Serial.println("          This is the last slide");
+					//set us as the previous slide's target
+
+					prev_t->target = slide;
+					// Set our target to the first slide
+					t->target = firstSlide;
+				} else { // middle
+					// set us as the previous slide's target
+					prev_t->target = slide;
+					prev_t = t;
+				}
+				cards.push_back(slide);
+
+			}
+
+
+		}
+	}
 
 	showCard("entry");
 }
@@ -160,51 +235,70 @@ bool LunarCardDeck::showCard(LunarCard *c){
 }
 
 void LunarCardDeck::doEvents() {
-	if (currentCard==NULL) return;
+	if (currentCard==NULL) {
+		Serial.println("Current Card is NULL");
+		return;
+	}
 	currentCard->doEvents();
 	TouchKey key = badge.getTouch();
 	LunarCard *target;
 	bool validEvent=false;
 	if (currentCard->transitions.size() == 0){
+		Serial.println("No Transitions");
 		return;
 	}
+	Transition *t;
 	for (int i = 0; i < currentCard->transitions.size(); i++) {
-		Transition *t = currentCard->transitions[i];
-		badge.refresh = t->refresh;
+		t = currentCard->transitions[i];
 		// Key Events?
+		/*Serial.print(currentCard->cardname);
+		Serial.print(":");
+		Serial.print(i);
+		Serial.print(":");
+		Serial.println(TransitionType2Str(t->type));*/
 		if (key != NoKey && t->type == Key && key == t->key) {
-			Serial.print("Handling Key Event '");
-			Serial.print("\tKey: '");
+			Serial.print("Handling Key Event");
+			Serial.print("     Key: '");
 			Serial.print(key2str(key));
-			Serial.print("' ");
+			Serial.println("' ");
 			target = t->target;
 			validEvent=true;
 		}
 		if (t->timer && t->type == Delay){
-//			//Serial.print(t->msDelay+currentCard->msLoaded); Serial.print(":");Serial.print(millis()); Serial.print(":");Serial.println(t->msDelay+currentCard->msLoaded > millis());
-			if (t->msDelay+currentCard->msLoaded > millis()){
+			unsigned long ct = millis();
+			//Serial.print(t->msDelay+currentCard->msLoaded); Serial.print(":");Serial.print(millis()); Serial.print(":");Serial.println(t->msDelay+currentCard->msLoaded < ct);
+			if ( (t->msDelay+currentCard->msLoaded) < ct){
 				Serial.print("Handling Delay Event '");
 				Serial.print("\tms: '");
 				Serial.print(t->msDelay);
 				Serial.print("' ");
 				target = t->target;
+				badge.refresh = t->refresh;
 				validEvent=true;
 			}
 		}
 	}
 	if (validEvent) {
-		Serial.print("\t Target: '");
-		//Serial.print(target->cardname);
+		//badge.refresh = target->refresh;
+		Serial.print("     Target: '");
+		Serial.print(target->cardname);
+		Serial.println("'");
+		Serial.print("     Refresh: '");
+		Serial.print(RefreshType2Str(badge.refresh));
 		Serial.println("'");
 		showCard(target);
-		Serial.print("Waiting for release...");
-		if (badge.waitForTouchRelease())
-			Serial.println("Done!");
-		else
-			Serial.println("Timeout!");
-		delay(800);
+
+		if (t->type==Key){
+			Serial.print("Waiting for release...");
+			if (badge.waitForTouchRelease())
+				Serial.println("Done!");
+			else
+				Serial.println("Timeout!");
+			delay(800);
+			resetTouch();
+		}
 	}
-	resetTouch();
+
 }
 
 void LunarCardDeck::addCard(LunarCard * c) {

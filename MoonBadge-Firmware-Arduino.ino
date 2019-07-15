@@ -21,7 +21,7 @@ void setup() {
 
   badge.init();
   // Try and load from SD, fallback to flash.
-  if(deck.load("SD:/delay.json")==false){
+  if(deck.load("SD:/slide.json")==false){
     Serial.println("Failed to load SDMMC, Falling back to SPIFFS");
     deck.load("SPI:/main.json");
   }
