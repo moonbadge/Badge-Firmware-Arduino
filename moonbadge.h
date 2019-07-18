@@ -5,10 +5,17 @@
 #include "Transition.h"
 #include "TouchKey.h"
 #include "RefreshType.h"
+#include "LunarCardDeck.h"
 
-
+enum BadgeState {Active=0,Idle);
 
 class MoonBadge {
+
+	LunarCardDeck *current_deck;
+	LunarCardDeck *idle_deck;
+	vector<LunarCardDeck *> decks;
+	BadgeState state=Active;
+	uint32_t active_timeout=120;
 
     static const uint16_t input_buffer_pixels = 640; // may affect performance
 
@@ -24,6 +31,8 @@ class MoonBadge {
 
 
   public:
+    bool loadDeck(LunarCardDeck *deck);
+    void setIdleDeck(LunarCardDeck *deck);
     RefreshType refresh=Full;
     void init(void);
     void drawBitmapFromSpiffs(String filename, int16_t x, int16_t y, bool with_color);
