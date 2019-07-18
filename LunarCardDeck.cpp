@@ -236,6 +236,7 @@ bool LunarCardDeck::showCard(LunarCard *c){
 }
 
 void LunarCardDeck::doEvents() {
+	Serial.println("Deck Event Handler..");
 	if (currentCard==NULL) {
 		Serial.println("Current Card is NULL");
 		return;
@@ -290,6 +291,21 @@ void LunarCardDeck::doEvents() {
 		Serial.print(RefreshType2Str(badge.refresh));
 		Serial.println("'");
 		showCard(target);
+		unsigned long shortest_delay=0;
+		for(int k=0; k<target->transitions.size();k++){
+			Transition *tr = target->transitions[k];
+			if (tr->type = Delay){
+				if (shortest_delay==0) shortest_delay=tr->msDelay;
+				else {
+					if (tr->msDelay<shortest_delay){
+						shortest_delay = tr->msDelay;
+					}
+				}
+			}
+		}
+		if (shortest_delay>0){
+			badge.setWakeupTimer(shortest_delay);
+		}
 
 		if (t->type==Key){
 			Serial.print("Waiting for release...");

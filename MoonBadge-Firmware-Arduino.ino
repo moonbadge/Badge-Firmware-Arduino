@@ -10,7 +10,7 @@ using namespace std;
 
 using namespace std;
 MoonBadge badge;
-LunarCardDeck deck;
+//LunarCardDeck deck;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
@@ -21,9 +21,9 @@ void setup() {
 
   badge.init();
   // Try and load from SD, fallback to flash.
-  if(deck.load("SD:/main.json")==false){
+  if(badge.loadDeck("SD:/main.json")==false){
     Serial.println("Failed to load SDMMC, Falling back to SPIFFS");
-    deck.load("SPI:/main.json");
+    badge.loadDeck("SPI:/main.json");
   }
 
   
@@ -32,6 +32,6 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  deck.doEvents();
+  badge.doEvents();
   delay(100);
 }

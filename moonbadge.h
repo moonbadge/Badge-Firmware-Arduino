@@ -7,7 +7,7 @@
 #include "RefreshType.h"
 #include "LunarCardDeck.h"
 
-enum BadgeState {Active=0,Idle);
+enum BadgeState {Active=0,Idle};
 
 class MoonBadge {
 
@@ -31,8 +31,11 @@ class MoonBadge {
 
 
   public:
-    bool loadDeck(LunarCardDeck *deck);
-    void setIdleDeck(LunarCardDeck *deck);
+    void doEvents();
+    void goToSleep();
+    void setWakeupTimer(unsigned long t);
+    bool loadDeck(String path);
+    void setIdleDeck(String path);
     RefreshType refresh=Full;
     void init(void);
     void drawBitmapFromSpiffs(String filename, int16_t x, int16_t y, bool with_color);
@@ -51,6 +54,7 @@ void gotTouchDown();
 void gotTouchLeft();
 void gotTouchRight();
 void resetTouch();
+void doEvents();
 String key2str(TouchKey k);
 TouchKey str2key(String s);
 

@@ -62,6 +62,7 @@ void MoonBadge::init() {
   touchAttachInterrupt(T6, gotTouchDown, threshold);
   touchAttachInterrupt(T7, gotTouchLeft, threshold);
   touchAttachInterrupt(T4, gotTouchRight, threshold);
+  esp_sleep_enable_touchpad_wakeup();
 
   display.setPartialWindow(0, 0, display.width(), display.height());
   display.setRotation(0);
@@ -153,7 +154,7 @@ bool MoonBadge::waitForTouchRelease() {
   }
 }
 
-File MoonBadge::openFile(String path, String modes) {
+File MoonBadge::openFile(String path, String modes) {;
   fs::File file;
   // SPIFFS or SD?
   StringSplitter *splitter = new StringSplitter(path, ':', 5);
@@ -175,6 +176,36 @@ File MoonBadge::openFile(String path, String modes) {
   String fpath = path;
 
   return file;
+}
+
+bool MoonBadge::loadDeck(String path){
+	LunarCardDeck *d  = new LunarCardDeck();
+	bool result = d->load(path);
+	if (result){
+		decks.push_back(d);
+		current_deck = d;
+	}
+	return result;
+}
+
+void MoonBadge::goToSleep(){
+	Serial.println("Oyasumi~");
+	delay(10);
+	unsigned long mark =  millis();
+	esp_light_sleep_start();
+	Serial.println("\n\nOhayo!");
+	unsigned long time_asleep = millis()-mark;
+	Serial.print("Asleep for "); Serial.print(time_asleep/1000.0); Serial.println(" Seconds!");
+}
+
+void MoonBadge::doEvents(){
+	current_deck->doEvents();
+	goToSleep();
+}
+
+void MoonBadge::setWakeupTimer(unsigned long t){
+	Serial.print("Sleeping for ");Serial.print(t);Serial.println("ms");
+	esp_sleep_enable_timer_wakeup(t*1000);
 }
 
 void MoonBadge::drawBitmapFromSpiffs(String filename, int16_t x, int16_t y, bool with_color){
