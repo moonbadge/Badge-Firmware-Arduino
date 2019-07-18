@@ -21,7 +21,7 @@ void setup() {
 
   badge.init();
   // Try and load from SD, fallback to flash.
-  if(badge.loadDeck("SD:/sponsor.json")==false){
+  if(badge.loadDeck("SD:/main.json")==false){
     Serial.println("Failed to load SDMMC, Falling back to SPIFFS");
     badge.loadDeck("SPI:/main.json");
   }
