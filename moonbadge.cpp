@@ -208,6 +208,7 @@ void MoonBadge::setWakeupTimer(unsigned long t){
 	esp_sleep_enable_timer_wakeup(t*1000);
 }
 
+// magick mogrify -format bmp -define bmp:format=bmp3 -depth 1 *.png
 void MoonBadge::drawBitmapFromSpiffs(String filename, int16_t x, int16_t y, bool with_color){
   bool partial=false;
   if (refresh != Full){

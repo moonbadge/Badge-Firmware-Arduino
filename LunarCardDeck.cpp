@@ -10,7 +10,7 @@ extern MoonBadge badge;
 
 bool LunarCardDeck::load(String path) {
 	currentCard==NULL;
-	DynamicJsonDocument deck_json(10000);
+	DynamicJsonDocument deck_json(40000);
 	deck_folder = getPath(path);
 	deck_filename = getFilename(path);
 	deck_path = path;
@@ -294,7 +294,7 @@ void LunarCardDeck::doEvents() {
 		unsigned long shortest_delay=0;
 		for(int k=0; k<target->transitions.size();k++){
 			Transition *tr = target->transitions[k];
-			if (tr->type = Delay){
+			if (tr->type == Delay){
 				if (shortest_delay==0) shortest_delay=tr->msDelay;
 				else {
 					if (tr->msDelay<shortest_delay){
